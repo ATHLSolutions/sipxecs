@@ -139,7 +139,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
 
       if( attemptCounter >= MAX_MEDIA_RELAY_INIT_ATTEMPTS )
       {
-         mbNatTraversalFeatureEnabled = false;
+         mbNatTraversalFeatureEnabled = true;
          Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_FAILED_TO_INITIALIZE_MEDIA_RELAY %s failed, NAT traversal feature will be disabled",
                        mInstanceName.data() );
       }
@@ -210,11 +210,12 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
          // clean up any of the proprietary headers we may have added
          request.removeHeader( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
          request.removeHeader( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );
+         //request.addRouteUri("sip:172.16.40.50:5085");
 
          UtlString msgBytes;
          ssize_t msgLen;
          request.getBytes(&msgBytes, &msgLen);
-         Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP considering %s", msgBytes.data() );
+         Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP considering \n%s", msgBytes.data() );
 
          UtlString callId;
          UtlString method;
@@ -236,7 +237,12 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // the CallId in our CallTrackers map
             if( method.compareTo( SIP_INVITE_METHOD ) == 0 )
             {
-               if( pCallTracker == 0 )
+//              if (!request.getHeaderValue( 0, "sipx-redirected-to-sems" ))
+//              {
+//                undoChangesToRequestUri = false;
+//              }
+
+                if( pCallTracker == 0 )
                {
                   // We are not tracking this call, this means that it is
                   // a new call that we haven't seen yet.  Instantiate
@@ -436,6 +442,11 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
       {
          restoreOriginalContact( request );
       }
+
+      UtlString msgBytes;
+      ssize_t msgLen;
+      request.getBytes(&msgBytes, &msgLen);
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP considering before exiting \n%s", msgBytes.data() );
    }
    return result;
 }
@@ -445,12 +456,13 @@ void NatTraversalAgent::handleBufferedOutputMessage( SipMessage& message,
                                      int port )
 {
   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "handleBufferedOutputMessage >>> handleOutputMessage from %s:%u", address, port );
-  NatTraversalAgent::handleOutputMessage(message, address, port);
+  NatTraversalAgent::handleOutputMessage(message, address, port, NULL);
 }
 
 void NatTraversalAgent::handleOutputMessage( SipMessage& message,
                                              const char* address,
-                                             int port )
+                                             int port,
+                                             bool* reevaluateDestination)
 {
    OsWriteLock lock( mMessageProcessingMutex );
    CallTracker* pCallTracker = 0;
@@ -465,6 +477,13 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
       // alteration must be done to requests carrying our Record-Route.
       adjustViaForNatTraversal( message, address, port );
       adjustRecordRouteForNatTraversal( message, address, port );
+      UtlString method;
+      message.getRequestMethod(&method);
+
+      UtlString msgBytes;
+      ssize_t msgLen;
+      message.getBytes(&msgBytes, &msgLen);
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent::handleOutputMessage \n%s", msgBytes.data() );
 
       pCallTracker = getCallTrackerForMessage( message );
       if( pCallTracker )
@@ -482,6 +501,30 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
       {
          Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::handleOutputMessage failed to retrieve CallTracker to handle request"
                                             , mInstanceName.data() );
+      }
+
+      if( method.compareTo( SIP_INVITE_METHOD ) == 0 )
+      {
+          if (reevaluateDestination)
+          {
+            UtlString routeUri;
+            message.getRouteUri(0, &routeUri);
+
+            Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP RouteUri=%s", routeUri.data());
+
+            if (routeUri.compareTo("<sip:172.16.40.50:5085;lr>") == 0 && !message.getHeaderValue( 0, "sipx-redirected-to-sems" ))
+            {
+              *reevaluateDestination = true;
+              message.setHeaderValue("sipx-redirected-to-sems", "abc" );
+              Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP route to sems reevaluateDestination=true");
+            }
+          }
+//        message.addRouteUri("sip:172.16.40.50:5085;lr");
+//
+        UtlString msgBytes;
+        ssize_t msgLen;
+        message.getBytes(&msgBytes, &msgLen);
+        Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NTAP route to sems \n%s", msgBytes.data() );
       }
    }
 }

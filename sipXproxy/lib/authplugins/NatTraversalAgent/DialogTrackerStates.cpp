@@ -217,6 +217,17 @@ bool WaitingForInvite::InviteRequest( DialogTracker& impl, SipMessage& request, 
       // session.
       ChangeState( impl, impl.pMoribund );
    }
+
+   if (true == impl.getMediaRelayRequiredFlag())
+   {
+     request.addRouteUri("sip:172.16.40.50:5085;lr");
+
+     UtlString msgBytes;
+     ssize_t msgLen;
+     request.getBytes(&msgBytes, &msgLen);
+     Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "WaitingForInvite::InviteRequest: NTAP route to sems \n%s", msgBytes.data() );
+   }
+
    return bTrackRequestResponse;
 }
 

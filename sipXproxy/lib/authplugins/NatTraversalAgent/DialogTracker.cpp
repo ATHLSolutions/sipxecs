@@ -606,6 +606,8 @@ void DialogTracker::reportDialogCompleted( void )
 
 void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern offerAnswerPattern )
 {
+    Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"DialogTracker::ProcessMediaOffer:"  );
+
    // check if the INVITE contains an SDP offer
    bool bSdpBodyHasChanged = false;
    SdpBody* pSdpBody = const_cast<SdpBody*>(message.getSdpBody());
