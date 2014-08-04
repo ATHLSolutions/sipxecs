@@ -686,7 +686,8 @@ UtlBoolean SipUserAgent::removeSipOutputProcessor( SipOutputProcessor *pProcesso
 
 void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
                                                   const char* address,
-                                                  int port )
+                                                  int port,
+                                                  bool* reevaluateDestination)
 {
    OsWriteLock lock(mOutputProcessorMutex);
    SipOutputProcessor* pProcessor = NULL ;
@@ -695,7 +696,7 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
    UtlSortedListIterator iterator(mOutputProcessors);
    while ((pProcessor = (SipOutputProcessor*) iterator()))
    {
-      pProcessor->handleOutputMessage( message, address, port );
+      pProcessor->handleOutputMessage( message, address, port, reevaluateDestination );
    }
 }
 
@@ -1139,10 +1140,21 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent::send "
                         "outgoing call 1");
+
+          UtlString msgBytes;
+          ssize_t msgLen;
+          message.getBytes(&msgBytes, &msgLen);
+
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent::send "
+                        "message \n%s", msgBytes.data());
+
+         bool reevaluateDestination = false;
          sendSucceeded = transaction->handleOutgoing(message,
                                                      *this,
                                                      mSipTransactions,
-                                                     relationship);
+                                                     relationship,
+                                                     &reevaluateDestination);
       }
 
       mSipTransactions.markAvailable(*transaction);
@@ -1163,7 +1175,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
 UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
                                  const char* serverAddress,
-                                 int port)
+                                 int port,
+                                 bool* reevaluateDestination)
 {
   if (mbShuttingDown || mbShutdownDone)
   {
@@ -1209,7 +1222,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   // Disallow an address begining with * as it gets broadcasted on NT
   if(! strchr(serverAddress, '*') && *serverAddress)
     {
-      sentOk = mSipUdpServer->send(message, serverAddress, port);
+      sentOk = mSipUdpServer->send(message, serverAddress, port, reevaluateDestination);
     }
   else if(*serverAddress == '\0')
     {
@@ -1296,10 +1309,12 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
        return FALSE;
     }
 
+    // don't need to reevaluate destination as is used only in NTAP
     assert(mSipUdpServer);
     UtlBoolean sentOk = mSipUdpServer->sendTo(message,
                                              serverAddress,
-                                             port);
+                                             port,
+                                             NULL);
 
     // :TODO: Relocate all the OUTGOING log messages into the SipClient*'s that
     // actually send the messages, so that the log messages record when/if
@@ -1396,16 +1411,16 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 
     if(sendProtocol.compareTo(SIP_TRANSPORT_UDP, UtlString::ignoreCase) == 0)
     {
-        sendSucceeded = sendUdp(&responseCopy, sendAddress.data(), sendPort);
+        sendSucceeded = sendUdp(&responseCopy, sendAddress.data(), sendPort, NULL);
     }
     else if(sendProtocol.compareTo(SIP_TRANSPORT_TCP, UtlString::ignoreCase) == 0)
     {
-        sendSucceeded = sendTcp(&responseCopy, sendAddress.data(), sendPort);
+        sendSucceeded = sendTcp(&responseCopy, sendAddress.data(), sendPort, NULL);
     }
 #ifdef SIP_TLS
     else if(sendProtocol.compareTo(SIP_TRANSPORT_TLS, UtlString::ignoreCase) == 0)
     {
-        sendSucceeded = sendTls(&responseCopy, sendAddress.data(), sendPort);
+        sendSucceeded = sendTls(&responseCopy, sendAddress.data(), sendPort, NULL);
     }
 #endif
 
@@ -1487,16 +1502,16 @@ bool SipUserAgent::relayStatelessAck(SipMessage& request)
         // Send using the correct protocol
         if(protocol == OsSocket::UDP || protocol == OsSocket::UNKNOWN)
         {
-           sendUdp(&request, routeAddress.data(), routePort);
+           sendUdp(&request, routeAddress.data(), routePort, NULL);
         }
         else if(protocol == OsSocket::TCP)
         {
-           sendTcp(&request, routeAddress.data(), routePort);
+           sendTcp(&request, routeAddress.data(), routePort, NULL);
         }
      #ifdef SIP_TLS
         else if(protocol == OsSocket::SSL_SOCKET)
         {
-           sendTls(&request, routeAddress.data(), routePort);
+           sendTls(&request, routeAddress.data(), routePort, NULL);
         }
      #endif
         
@@ -1543,16 +1558,16 @@ UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
    UtlBoolean sendSucceeded = FALSE;
    if(protocol == OsSocket::UDP)
    {
-      sendSucceeded = sendUdp(&request, address.data(), port);
+      sendSucceeded = sendUdp(&request, address.data(), port, NULL);
    }
    else if(protocol == OsSocket::TCP)
    {
-      sendSucceeded = sendTcp(&request, address.data(), port);
+      sendSucceeded = sendTcp(&request, address.data(), port, NULL);
    }
 #ifdef SIP_TLS
    else if(protocol == OsSocket::SSL_SOCKET)
    {
-      sendSucceeded = sendTls(&request, address.data(), port);
+      sendSucceeded = sendTls(&request, address.data(), port, NULL);
    }
 #endif
 
@@ -1561,7 +1576,8 @@ UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
 
 UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
                                  const char* serverAddress,
-                                 int port)
+                                 int port,
+                                 bool* reevaluateDestination)
 {
     if (mbShuttingDown || mbShutdownDone)
     {
@@ -1579,7 +1595,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     {
        if (mSipTcpServer)
        {
-          sendSucceeded = mSipTcpServer->send(message, serverAddress, port);
+          sendSucceeded = mSipTcpServer->send(message, serverAddress, port, reevaluateDestination);
        }
     }
     else if (*serverAddress == '\0')
@@ -1641,7 +1657,8 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
 
 UtlBoolean SipUserAgent::sendTls(SipMessage* message,
                                  const char* serverAddress,
-                                 int port)
+                                 int port,
+                                 bool* reevaluateDestination)
 {
    if (mbShuttingDown || mbShutdownDone)
    {
@@ -1657,7 +1674,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    // Disallow an address begining with * as it gets broadcasted on NT
    if(!strchr(serverAddress,'*') && *serverAddress)
    {
-      sendSucceeded = mSipTlsServer->send(message, serverAddress, port);
+      sendSucceeded = mSipTlsServer->send(message, serverAddress, port, reevaluateDestination);
    }
    else if(*serverAddress == '\0')
    {
@@ -1735,6 +1752,10 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
    UtlBoolean isResponse = message->isResponse();
    UtlBoolean shouldDispatch = FALSE;
    SipMessage* delayedDispatchMessage = NULL;
+
+   ssize_t msgLen;
+   message->getBytes(&msgBytes, &msgLen);
+   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SipUserAgent::dispatch 0 message \n%s", msgBytes.data() );
 
 #ifdef LOG_TIME
    OsTimeLog eventTimes;

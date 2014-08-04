@@ -140,7 +140,7 @@ UtlBoolean SipUserAgentStateless::sendTo(SipMessage& message,
            sendPort = SIP_PORT;
         }
 
-        sendOk = mpUdpServer->sendTo(message, sendAddress, sendPort);
+        sendOk = mpUdpServer->sendTo(message, sendAddress, sendPort, NULL);
     }
 
     // Log the message

@@ -9,6 +9,9 @@ AC_CONFIG_SRCDIR([src/net/SipMessage.cpp])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH], [bash])
+if test -z $CXXFLAGS; then
+    CXXFLAGS='-g'
+fi
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
