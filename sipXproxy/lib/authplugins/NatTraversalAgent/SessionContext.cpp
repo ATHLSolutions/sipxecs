@@ -295,29 +295,29 @@ DialogTracker* SessionContext::allocateNewDialogTrackerBasedOnReference( const U
       // We have a new tracker that is utilizing the same Media RelaySessions as the
       // reference.  Increment their link count to track the number of DialogTrackers using
       // them and avoid premature de-allocations.
-      size_t index;
-      size_t numSavedMediaDescriptors = pNewDialogTracker->getNumberOfMediaDescriptors();
-      for( index = 0; index < numSavedMediaDescriptors; index++ )
-      {
-         const MediaDescriptor* pMediaDescriptor;
-         pMediaDescriptor = pNewDialogTracker->getReadOnlyMediaDescriptor( index );
-         tMediaRelayHandle tempMediaRelayHandle;
-
-         if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-         {
-            mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
-         }
-
-         if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-         {
-            mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
-         }
-
-         if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-         {
-            mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
-         }
-      }
+//      size_t index;
+//      size_t numSavedMediaDescriptors = pNewDialogTracker->getNumberOfMediaDescriptors();
+//      for( index = 0; index < numSavedMediaDescriptors; index++ )
+//      {
+//         const MediaDescriptor* pMediaDescriptor;
+//         pMediaDescriptor = pNewDialogTracker->getReadOnlyMediaDescriptor( index );
+//         tMediaRelayHandle tempMediaRelayHandle;
+//
+//         if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//         {
+//            mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
+//         }
+//
+//         if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//         {
+//            mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
+//         }
+//
+//         if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//         {
+//            mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
+//         }
+//      }
    }
    return pNewDialogTracker;
 }
@@ -459,38 +459,38 @@ bool SessionContext::doesEndpointsLocationImposeMediaRelay( const SipMessage& re
    return bMediaRelayNeeded;
 }
 
-bool SessionContext::allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                         tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort )
-{
-   bool bAllocationSucceeded = false;
-   relayHandle = INVALID_MEDIA_RELAY_HANDLE;
+//bool SessionContext::allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                         tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort )
+//{
+//   bool bAllocationSucceeded = false;
+//   relayHandle = INVALID_MEDIA_RELAY_HANDLE;
+//
+//   if( mpMediaRelay->allocateSession( relayHandle, callerRelayRtpPort, calleeRelayRtpPort ) )
+//   {
+//      bAllocationSucceeded = true;
+//   }
+//   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateMediaRelaySession for dialog tracker %s: handle %d: caller %d; callee %d",
+//                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle, callerRelayRtpPort, calleeRelayRtpPort );
+//   return bAllocationSucceeded;
+//}
 
-   if( mpMediaRelay->allocateSession( relayHandle, callerRelayRtpPort, calleeRelayRtpPort ) )
-   {
-      bAllocationSucceeded = true;
-   }
-   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateMediaRelaySession for dialog tracker %s: handle %d: caller %d; callee %d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle, callerRelayRtpPort, calleeRelayRtpPort );
-   return bAllocationSucceeded;
-}
+//tMediaRelayHandle SessionContext::cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                         tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
+//{
+//   tMediaRelayHandle clonedRelayHandle;
+//   clonedRelayHandle = mpMediaRelay->cloneSession( relayHandleToClone, doSwapCallerAndCallee );
+//   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContextcloneMediaRelaySession for dialog tracker %s: src handle %d, dest handle %d",
+//                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandleToClone, (int)clonedRelayHandle );
+//   return clonedRelayHandle;
+//}
 
-tMediaRelayHandle SessionContext::cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                         tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
-{
-   tMediaRelayHandle clonedRelayHandle;
-   clonedRelayHandle = mpMediaRelay->cloneSession( relayHandleToClone, doSwapCallerAndCallee );
-   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContextcloneMediaRelaySession for dialog tracker %s: src handle %d, dest handle %d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandleToClone, (int)clonedRelayHandle );
-   return clonedRelayHandle;
-}
-
-bool SessionContext::deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                         const tMediaRelayHandle& relayHandle )
-{
-   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::deallocateMediaRelaySession for dialog tracker %s: handle %d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle );
-   return mpMediaRelay->deallocateSession( relayHandle );
-}
+//bool SessionContext::deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                         const tMediaRelayHandle& relayHandle )
+//{
+//   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::deallocateMediaRelaySession for dialog tracker %s: handle %d",
+//                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle );
+//   return mpMediaRelay->deallocateSession( relayHandle );
+//}
 
 bool SessionContext::setMediaRelayDirectionMode(  const UtlString& handleOfRequestingDialogContext,
                                                   const tMediaRelayHandle& relayHandle,
@@ -510,7 +510,9 @@ bool SessionContext::setMediaRelayDirectionMode(  const UtlString& handleOfReque
          mediaRelayDirectionMode = SEND_ONLY;
       }
    }
-   return mpMediaRelay->setDirectionMode( relayHandle, mediaRelayDirectionMode );
+   //return mpMediaRelay->setDirectionMode( relayHandle, mediaRelayDirectionMode );
+
+   return TRUE;
 }
 
 bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& handleOfRequestingDialogContext,
@@ -580,8 +582,9 @@ bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& hand
    Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::linkMediaRelayPortToFarEnd for dialog tracker %s: relay handle %d - linking far-end relay port to '%s':%d,%d",
                                      mHandle.data(), handleOfRequestingDialogContext.data(), (int)(relayHandle.getValue()), requestingEndpointIpAddress.data(), requestingEndpointRtpPort, requestingEndpointRtcpPort );
 
-   bLinkPerformed = mpMediaRelay->linkSymToEndpoint( relayHandle, requestingEndpointIpAddress, requestingEndpointRtpPort, requestingEndpointRtcpPort, farEndRole );
-   return bLinkPerformed;
+   //bLinkPerformed = mpMediaRelay->linkSymToEndpoint( relayHandle, requestingEndpointIpAddress, requestingEndpointRtpPort, requestingEndpointRtcpPort, farEndRole );
+   //return bLinkPerformed;
+   return true;
 }
 
 bool SessionContext::getMediaRelayAddressToUseInSdp( UtlString& mediaRelayAddressToUse, EndpointRole endpointRole ) const
@@ -612,10 +615,10 @@ bool SessionContext::getMediaRelayAddressToUseInSdp( UtlString& mediaRelayAddres
    return bUseNativeMediaRelayIpAddress;
 }
 
-int SessionContext::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole )
-{
-   return mpMediaRelay->getRtpRelayPortForMediaRelaySession( handle, endpointRole );
-}
+//int SessionContext::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole )
+//{
+//   return mpMediaRelay->getRtpRelayPortForMediaRelaySession( handle, endpointRole );
+//}
 
 void SessionContext::reportDialogTrackerReadyForDeletion( const UtlString& handleOfRequestingDialogContext )
 {
@@ -624,11 +627,11 @@ void SessionContext::reportDialogTrackerReadyForDeletion( const UtlString& handl
    mListOfDialogTrackersReadyForDeletion.push_back( handleOfRequestingDialogContext );
 }
 
-bool SessionContext::getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
-                                                                   PacketProcessingStatistics& stats )
-{
-   return mpMediaRelay->getPacketProcessingStatsForMediaRelaySession( handle, stats );
-}
+//bool SessionContext::getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
+//                                                                   PacketProcessingStatistics& stats )
+//{
+//   return mpMediaRelay->getPacketProcessingStatsForMediaRelaySession( handle, stats );
+//}
 
 const EndpointDescriptor& SessionContext::getEndpointDescriptor( EndpointRole endpointRole ) const
 {

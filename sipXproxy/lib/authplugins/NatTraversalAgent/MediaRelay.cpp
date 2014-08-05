@@ -23,9 +23,9 @@
 #include "utl/UtlBool.h"
 
 // STATIC INITIALIZATIONS
-const UtlContainableType Sym::TYPE                 = "Sym";
-const UtlContainableType Bridge::TYPE              = "Bridge";
-const UtlContainableType MediaBridgePair::TYPE     = "MediaBridgePair";
+//const UtlContainableType Sym::TYPE                 = "Sym";
+//const UtlContainableType Bridge::TYPE              = "Bridge";
+//const UtlContainableType MediaBridgePair::TYPE     = "MediaBridgePair";
 //const UtlContainableType AsynchMediaRelayMsg::TYPE = "AsynchMediaRelayMsg";
 
 // DEFINES
@@ -106,10 +106,10 @@ const UtlContainableType MediaBridgePair::TYPE     = "MediaBridgePair";
 MediaRelay::MediaRelay() :
    //mbSignedInWithSymmitron( false ),
    //mAsynchMediaRelayRequestSender( this ),
-   mMutex( OsMutex::Q_FIFO ),
+   mMutex( OsMutex::Q_FIFO )
    //mGenericTimer( *this ),
-   mGenericTimerTickCounter( 0 ),
-   mbPollForSymmitronRecovery( false )
+   //mGenericTimerTickCounter( 0 ),
+   //mbPollForSymmitronRecovery( false )
 {
   mbIsPartOfsipXLocalPrivateNetwork = false;
   //mXmlRpcPort = 0;
@@ -146,8 +146,8 @@ bool MediaRelay::initialize( const  UtlString& publicAddress,
 //   }
 //   mSymmitronUrl.setHostAddress( nativeAddress.data() );
 //   mSymmitronUrl.setHostPort( xmlRpcPort );
-   mAvailableMediaBridgePairsList.clear();
-   mBusyMediaBridgePairsList.clear();
+   //mAvailableMediaBridgePairsList.clear();
+   //mBusyMediaBridgePairsList.clear();
 
    return true;
 //   return preAllocateSymmitronResources();
@@ -535,7 +535,7 @@ MediaRelay::~MediaRelay()
 void MediaRelay::cleanUpEverything( void )
 {
    OsLock lock( mMutex );
-   mActiveMediaRelaySessions.destroyAll();
+   //mActiveMediaRelaySessions.destroyAll();
 //   deallocateAllSymmitronResourcesAndSignOut();
 }
 
@@ -568,392 +568,394 @@ void MediaRelay::cleanUpEverything( void )
 //   }
 //}
 
-void MediaRelay::notifyBridgeStatistics( const UtlString& bridgeId, intptr_t numberOfPacketsProcessed, void* opaqueData )
-{
-   OsLock lock( mMutex );
-   tMediaRelayHandle mediaRelaySessionHandle = (intptr_t)opaqueData;
-   MediaRelaySession* pMediaRelaySession = getSessionByHandle( mediaRelaySessionHandle );
+//void MediaRelay::notifyBridgeStatistics( const UtlString& bridgeId, intptr_t numberOfPacketsProcessed, void* opaqueData )
+//{
+//   OsLock lock( mMutex );
+//   tMediaRelayHandle mediaRelaySessionHandle = (intptr_t)opaqueData;
+//   MediaRelaySession* pMediaRelaySession = getSessionByHandle( mediaRelaySessionHandle );
+//
+//   Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "MediaRelay::notifyBridgeStatistics() received stats for bridge %s belonging to MRS %u: "
+//                                      " packets processed = %d", bridgeId.data(), (int)mediaRelaySessionHandle, (int)numberOfPacketsProcessed );
+//
+//   if( pMediaRelaySession )
+//   {
+//      PacketProcessingStatistics newStats = pMediaRelaySession->getPacketProcessingStats();
+//      if( numberOfPacketsProcessed != newStats.mNumberOfPacketsProcessed )
+//      {
+//         // The count of processed packets has changed.  In normal cases
+//         // it is because the number of packets processed has grown since the
+//         // last time so the stats are updated to reflect the increment.  In
+//         // special cases, it could also be that the number of packets processed
+//         // has decreased - this could happen in cases where the stats are
+//         // reset in error at the symmitron or have wrapped around.  We also
+//         // update the stats in this case to resynch with the backward jump.
+//         newStats.mNumberOfPacketsProcessed         = numberOfPacketsProcessed;
+//         newStats.mEpochTimeOfLastPacketsProcessed  = OsDateTime::getSecsSinceEpoch();
+//         pMediaRelaySession->setPacketProcessingStats( newStats );
+//      }
+//      // else{ processed packet count did not change so do not update anything. }
+//   }
+//}
 
-   Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "MediaRelay::notifyBridgeStatistics() received stats for bridge %s belonging to MRS %u: "
-                                      " packets processed = %d", bridgeId.data(), (int)mediaRelaySessionHandle, (int)numberOfPacketsProcessed );
-
-   if( pMediaRelaySession )
-   {
-      PacketProcessingStatistics newStats = pMediaRelaySession->getPacketProcessingStats();
-      if( numberOfPacketsProcessed != newStats.mNumberOfPacketsProcessed )
-      {
-         // The count of processed packets has changed.  In normal cases
-         // it is because the number of packets processed has grown since the
-         // last time so the stats are updated to reflect the increment.  In
-         // special cases, it could also be that the number of packets processed
-         // has decreased - this could happen in cases where the stats are
-         // reset in error at the symmitron or have wrapped around.  We also
-         // update the stats in this case to resynch with the backward jump.
-         newStats.mNumberOfPacketsProcessed         = numberOfPacketsProcessed;
-         newStats.mEpochTimeOfLastPacketsProcessed  = OsDateTime::getSecsSinceEpoch();
-         pMediaRelaySession->setPacketProcessingStats( newStats );
-      }
-      // else{ processed packet count did not change so do not update anything. }
-   }
-}
-
-bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1RelayRtpPort, int& endpoint2RelayRtpPort )
-{
-   OsLock lock( mMutex );
-   bool result = false;
+//bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1RelayRtpPort, int& endpoint2RelayRtpPort )
+//{
+//   OsLock lock( mMutex );
+//   bool result = false;
    // get a free bridge
-   if( mAvailableMediaBridgePairsList.size() > 0 )
-   {
-      MediaBridgePair* pMediaBridgePairToUse = mAvailableMediaBridgePairsList.back();
-      mAvailableMediaBridgePairsList.pop_back();
-      mBusyMediaBridgePairsList.push_back( pMediaBridgePairToUse );
+//   if( mAvailableMediaBridgePairsList.size() > 0 )
+//   {
+//      MediaBridgePair* pMediaBridgePairToUse = mAvailableMediaBridgePairsList.back();
+//      mAvailableMediaBridgePairsList.pop_back();
+//      mBusyMediaBridgePairsList.push_back( pMediaBridgePairToUse );
+//
+//      endpoint1RelayRtpPort = pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort();
+//      endpoint2RelayRtpPort = pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort();
+//      relayHandle = mRelaySessionHandle++;
+//
+//      UtlString idString;
+//
+//      // set all four syms in auto-learning mode and resume them
+//         // Sym1 of Rtp Bridge
+//      idString = pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId();
+//      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
+//      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
+//      // Sym2 of Rtp Bridge
+//      idString = pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getId();
+//      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
+//      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
+//         // Sym1 of Rtcp Bridge
+//      idString = pMediaBridgePairToUse->getRtcpBridge()->getEndpoint1Sym()->getId();
+//      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
+//      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
+//         // Sym2 of Rtcp Bridge
+//      idString = pMediaBridgePairToUse->getRtcpBridge()->getEndpoint2Sym()->getId();
+//      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
+//      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
+//
+//      // unpause both bridges of the pair
+//      idString = pMediaBridgePairToUse->getRtpBridge()->getId();
+//      //mAsynchMediaRelayRequestSender.resumeBridge( mOurInstanceHandle, idString );
+//       idString = pMediaBridgePairToUse->getRtcpBridge()->getId();
+//      //mAsynchMediaRelayRequestSender.resumeBridge( mOurInstanceHandle, idString );
+//
+//      MediaRelaySession* pMediaRelaySession = new MediaRelaySession( relayHandle, endpoint1RelayRtpPort, endpoint2RelayRtpPort, pMediaBridgePairToUse );
+//      tMediaRelayHandle* pHandle = new tMediaRelayHandle( relayHandle );
+//      mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pMediaRelaySession );
+//      result = true;
+//
+//      Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Allocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
+//                     "MBP:%p (RtpBridge=%s)",
+//                     (int)relayHandle,
+//                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort(),
+//                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId().data(),
+//                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort(),
+//                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getId().data(),
+//                     pMediaBridgePairToUse,
+//                     pMediaBridgePairToUse->getRtpBridge()->getId().data() );
+//   }
+//   else
+//   {
+//      Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_RAN_OUT_OF_MEDIA_RELAY_SESSIONS failed to allocate a new session - "
+//                                        "ran out of bridges (max = %zu)", mMaxMediaRelaySessions );
+//   }
+//   return result;
+//}
 
-      endpoint1RelayRtpPort = pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort();
-      endpoint2RelayRtpPort = pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort();
-      relayHandle = mRelaySessionHandle++;
+//tMediaRelayHandle MediaRelay::cloneSession( const tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
+//{
+//   OsLock lock( mMutex );
+//  const MediaRelaySession* pMediaRelaySessionToClone;
+//   tMediaRelayHandle relayHandleOfClone = INVALID_MEDIA_RELAY_HANDLE;
+//
+//   if( ( pMediaRelaySessionToClone = getSessionByHandle( relayHandleToClone ) ) )
+//   {
+//      int callerRtpPort = pMediaRelaySessionToClone->getRtpRelayPort( CALLER );
+//      int calleeRtpPort = pMediaRelaySessionToClone->getRtpRelayPort( CALLEE );
+//
+//      if( doSwapCallerAndCallee )
+//      {
+//         int tempPort  = callerRtpPort;
+//         callerRtpPort = calleeRtpPort;
+//         calleeRtpPort = tempPort;
+//      }
+//
+//      relayHandleOfClone = mRelaySessionHandle++;
+//      MediaRelaySession* pClonedMediaRelaySession = new MediaRelaySession( relayHandleOfClone, callerRtpPort, calleeRtpPort,
+//                                                                           pMediaRelaySessionToClone->getAssociatedMediaBridgePair(), true );
+//      tMediaRelayHandle* pHandle = new tMediaRelayHandle( relayHandleOfClone );
+//      mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pClonedMediaRelaySession );
+//
+//      Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ Cloned session %u => resulting clone %u.  PortsSwapped = %d (callerPort=%d, calleePort=%d)",
+//                     (int)relayHandleToClone,
+//                     (int)relayHandleOfClone,
+//                     doSwapCallerAndCallee,
+//                     callerRtpPort,
+//                     calleeRtpPort );
+//   }
+//   return relayHandleOfClone;
+//}
 
-      UtlString idString;
+//bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
+//{
+//   OsLock lock( mMutex );
+//   bool bDeallocSucceeded = false;
+//
+//   if( handle != INVALID_MEDIA_RELAY_HANDLE )
+//   {
+//      MediaRelaySession* pMediaRelaySession;
+//
+//      if( ( pMediaRelaySession = const_cast< MediaRelaySession* >( getSessionByHandle( handle ) ) ) )
+//      {
+//         bDeallocSucceeded = true;
+//         if( pMediaRelaySession->decrementLinkCount() == 0 )
+//         {
+//            if( !pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() )
+//            {
+//               // remove the MediaBridgePair associated with the deallocated session
+//               // from the mBusyMediaBridgePairsList and return it to the mAvailableMediaBridgePairsList.
+//               // NOTE: This class adds and removes elements at the end of lists so start looking for the
+//               // MediaBridgePair to remove starting at the end.
+//               MediaBridgePair* pMediaBridgePairBeingFreed = pMediaRelaySession->getAssociatedMediaBridgePair();
+//               std::vector<MediaBridgePair*>::iterator pos;
+//               bool itemToEraseFound = false;
+//               for( pos = mBusyMediaBridgePairsList.begin(); pos != mBusyMediaBridgePairsList.end(); ++pos )
+//               {
+//                  if( *pos == pMediaBridgePairBeingFreed )
+//                  {
+//                     mBusyMediaBridgePairsList.erase( pos );
+//                     itemToEraseFound = true;
+//                     break;
+//                  }
+//               }
+//
+//               Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
+//                              "MBP:%p (RtpBridge=%s)",
+//                              (int)handle,
+//                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getPort(),
+//                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getId().data(),
+//                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getPort(),
+//                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getId().data(),
+//                              pMediaBridgePairBeingFreed,
+//                              pMediaBridgePairBeingFreed->getRtpBridge()->getId().data() );
+//
+//               if( !itemToEraseFound )
+//               {
+//                  Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "MediaRelay::deallocateSession couldn't find pMediaBridgePair being freed in mBusyMediaBridgePairsList.");
+//               }
+//               mAvailableMediaBridgePairsList.push_back( pMediaBridgePairBeingFreed );
+//
+//               // return the bridges in a paused state.
+//               UtlString rtpBridgeId  = pMediaBridgePairBeingFreed->getRtpBridge()->getId();
+//               UtlString rtcpBridgeId = pMediaBridgePairBeingFreed->getRtcpBridge()->getId();
+//               //mAsynchMediaRelayRequestSender.pauseBridge( mOurInstanceHandle, rtpBridgeId );
+//               //mAsynchMediaRelayRequestSender.pauseBridge( mOurInstanceHandle, rtcpBridgeId );
+//
+//               // remove media relay session just deallocated from our active list.
+//               mActiveMediaRelaySessions.destroy( &handle );
+//            }
+//            else
+//            {
+//               // we are deallocating a clone.   Remove it from our active list but
+//               // do not actiually de-allocate anything on the Symmitron as the
+//               // original copy may still be around.
+//               mActiveMediaRelaySessions.destroy( &handle );
+//            }
+//         }
+//         else
+//         {
+//            Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session but non-zero link count (%zd)",
+//                           (int)handle,
+//                           pMediaRelaySession->getLinkCount() );
+//         }
+//         assert( mAvailableMediaBridgePairsList.size() + mBusyMediaBridgePairsList.size() == mMaxMediaRelaySessions );
+//      }
+//   }
+//   return bDeallocSucceeded;
+//}
 
-      // set all four syms in auto-learning mode and resume them
-         // Sym1 of Rtp Bridge
-      idString = pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId();
-      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
-      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
-      // Sym2 of Rtp Bridge
-      idString = pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getId();
-      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
-      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
-         // Sym1 of Rtcp Bridge
-      idString = pMediaBridgePairToUse->getRtcpBridge()->getEndpoint1Sym()->getId();
-      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
-      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
-         // Sym2 of Rtcp Bridge
-      idString = pMediaBridgePairToUse->getRtcpBridge()->getEndpoint2Sym()->getId();
-      //mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
-      //mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
+//bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirectionality mediaRelayDirectionMode )
+//{
+//   OsLock lock( mMutex );
+//   bool success = false;
+//
+//   if( handle != INVALID_MEDIA_RELAY_HANDLE )
+//   {
+//      const MediaRelaySession* pMediaRelaySession;
+//      if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
+//      {
+//         // figure out which syms to pause to achieve prescribed directionality.
+//         // The directionality setting is referenced from the point of view of
+//         // the caller.  The Bridge abstraction contains two syms (1 and 2)
+//         // but does not know the concept of caller or callee.  As a convention,
+//         // the Media Relay uses sym1 for the caller and sym2 for the callee.
+//
+//         UtlString rtpSymId;
+//         MediaBridgePair* pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair();
+//
+//         success = true;
+//         if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() &&
+//             pMediaRelaySession->areCallerAndCalleeRtpPortsSwapped() )
+//         {
+//            if( mediaRelayDirectionMode == SEND_ONLY )
+//            {
+//               mediaRelayDirectionMode = RECV_ONLY;
+//            }
+//            else if( mediaRelayDirectionMode == RECV_ONLY )
+//            {
+//               mediaRelayDirectionMode = SEND_ONLY;
+//            }
+//         }
+//
+//         if( mediaRelayDirectionMode == RECV_ONLY )
+//         {
+//            // RECV_ONLY means that the caller receives but does not send therefore
+//            // the Sym1 from the RTP bridge need to be paused while the
+//            // RTCP one needs to remain open to ensure that bi-directional exchnage
+//            // of RTCP metrics continue to happen.
+//            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
+////            mAsynchMediaRelayRequestSender.pauseSym( mOurInstanceHandle, rtpSymId );
+//            // the other Sym needs to be resumed in case it was paused
+//            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
+////            mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
+//         }
+//         else if( mediaRelayDirectionMode == SEND_ONLY )
+//         {
+//            // SEND_ONLY means that the caller sends but does not receive therefore
+//            // the Sym2 from the RTP bridge needs to be paused while the
+//            // RTCP one needs to remain open to ensure that bi-directional exchnage
+//            // of RTCP metrics continue to happen.
+//            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
+////            mAsynchMediaRelayRequestSender.pauseSym( mOurInstanceHandle, rtpSymId );
+//            // the other Sym needs to be resumed in case it was paused
+//            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
+////            mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
+//         }
+//         else // SEND_RECV
+//         {
+//            // resume syms from both caller and callee in case they were paused.
+//            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
+////            mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
+//            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
+// //           mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
+//         }
+//         UtlString directionalityString;
+//         MediaDescriptor::mediaDirectionalityValueToSdpDirectionalityAttribute( mediaRelayDirectionMode, directionalityString );
+//         Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: set directionality to %s.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
+//                        "MBP:%p (RtpBridge=%s)",
+//                        (int)handle,
+//                        directionalityString.data(),
+//                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort(),
+//                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId().data(),
+//                        pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getPort(),
+//                        pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId().data(),
+//                        pMediaBridgePair,
+//                        pMediaBridgePair->getRtpBridge()->getId().data() );
+//      }
+//   }
+//   return success;
+//}
+//
+//bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
+//                                    const UtlString& endpointIpAddress,
+//                                    int endpointRtpPort,
+//                                    int endpointRtcpPort,
+//                                    EndpointRole ownerOfSymToLink )
+//{
+//   OsLock lock( mMutex );
+//   bool bLinkSucceeded = false;
 
-      // unpause both bridges of the pair
-      idString = pMediaBridgePairToUse->getRtpBridge()->getId();
-      //mAsynchMediaRelayRequestSender.resumeBridge( mOurInstanceHandle, idString );
-       idString = pMediaBridgePairToUse->getRtcpBridge()->getId();
-      //mAsynchMediaRelayRequestSender.resumeBridge( mOurInstanceHandle, idString );
+//   UtlString rtpSymId;
+//   UtlString rtcpSymId;
+//   const MediaRelaySession* pMediaRelaySession;
+//
+//   if( ( pMediaRelaySession = getSessionByHandle( relayHandle ) ) )
+//   {
+//      if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() &&
+//          pMediaRelaySession->areCallerAndCalleeRtpPortsSwapped() )
+//      {
+//         if( ownerOfSymToLink == CALLER )
+//         {
+//            ownerOfSymToLink = CALLEE;
+//         }
+//         else
+//         {
+//            ownerOfSymToLink = CALLER;
+//         }
+//      }
+//
+//      MediaBridgePair* pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair();
+//
+//      UtlString rtpSymId;
+//      UtlString rtcpSymId;
+//      int rtpPort;
+//      // by convention Sym1 is associated to caller and sym2 to callee
+//      if( ownerOfSymToLink == CALLER )
+//      {
+//         rtpSymId  = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
+//         rtpPort   = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort();
+//         rtcpSymId = pMediaBridgePair->getRtcpBridge()->getEndpoint1Sym()->getId();
+//      }
+//      else
+//      {
+//         rtpSymId  = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
+//         rtpPort   = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getPort();
+//         rtcpSymId = pMediaBridgePair->getRtcpBridge()->getEndpoint2Sym()->getId();
+//      }
+//
+////      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtpSymId,  endpointIpAddress, endpointRtpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );
+////      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtcpSymId, endpointIpAddress, endpointRtcpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );
+//      bLinkSucceeded = true;
+//
+//      Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: linking %u to dest %s:%u (symId=%s)",
+//                     (int)relayHandle,
+//                     rtpPort,
+//                     endpointIpAddress.data(),
+//                     endpointRtpPort,
+//                     rtpSymId.data() );
+//   }
+//   else
+//   {
+//      Os::Logger::instance().log(FAC_NAT, PRI_CRIT,
+//                    "MediaRelay::linkSymToEndpoint failed to getSessionByHandle: %d",
+//                    (int)relayHandle );
+//
+//   }
+//   return bLinkSucceeded;
+//}
 
-      MediaRelaySession* pMediaRelaySession = new MediaRelaySession( relayHandle, endpoint1RelayRtpPort, endpoint2RelayRtpPort, pMediaBridgePairToUse );
-      tMediaRelayHandle* pHandle = new tMediaRelayHandle( relayHandle );
-      mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pMediaRelaySession );
-      result = true;
+//ssize_t MediaRelay::incrementLinkCountOfMediaRelaySession( const tMediaRelayHandle& handle )
+//{
+//   OsLock lock( mMutex );
+//   ssize_t result = 0;
+//   MediaRelaySession* pMediaRelaySession = 0;
+//
+//   if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
+//   {
+//      result = pMediaRelaySession->incrementLinkCount();
+//   }
+//   return result;
+//}
 
-      Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Allocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
-                     "MBP:%p (RtpBridge=%s)",
-                     (int)relayHandle,
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort(),
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId().data(),
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort(),
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getId().data(),
-                     pMediaBridgePairToUse,
-                     pMediaBridgePairToUse->getRtpBridge()->getId().data() );
-   }
-   else
-   {
-      Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_RAN_OUT_OF_MEDIA_RELAY_SESSIONS failed to allocate a new session - "
-                                        "ran out of bridges (max = %zu)", mMaxMediaRelaySessions );
-   }
-   return result;
-}
+//int MediaRelay::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole )
+//{
+//   OsLock lock( mMutex );
+//   int rtpPort = PORT_NONE;
+//   MediaRelaySession* pMediaRelaySession = 0;
+//
+//   if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
+//   {
+//      rtpPort = pMediaRelaySession->getRtpRelayPort( endpointRole );
+//   }
+//   return rtpPort;
+//}
 
-tMediaRelayHandle MediaRelay::cloneSession( const tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
-{
-   OsLock lock( mMutex );
-   const MediaRelaySession* pMediaRelaySessionToClone;
-   tMediaRelayHandle relayHandleOfClone = INVALID_MEDIA_RELAY_HANDLE;
+//MediaRelaySession* MediaRelay::getSessionByHandle( const tMediaRelayHandle& handle )
+//{
+//   OsLock lock( mMutex );
+//   return (MediaRelaySession*) mActiveMediaRelaySessions.findValue( &handle );
 
-   if( ( pMediaRelaySessionToClone = getSessionByHandle( relayHandleToClone ) ) )
-   {
-      int callerRtpPort = pMediaRelaySessionToClone->getRtpRelayPort( CALLER );
-      int calleeRtpPort = pMediaRelaySessionToClone->getRtpRelayPort( CALLEE );
-
-      if( doSwapCallerAndCallee )
-      {
-         int tempPort  = callerRtpPort;
-         callerRtpPort = calleeRtpPort;
-         calleeRtpPort = tempPort;
-      }
-
-      relayHandleOfClone = mRelaySessionHandle++;
-      MediaRelaySession* pClonedMediaRelaySession = new MediaRelaySession( relayHandleOfClone, callerRtpPort, calleeRtpPort,
-                                                                           pMediaRelaySessionToClone->getAssociatedMediaBridgePair(), true );
-      tMediaRelayHandle* pHandle = new tMediaRelayHandle( relayHandleOfClone );
-      mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pClonedMediaRelaySession );
-
-      Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ Cloned session %u => resulting clone %u.  PortsSwapped = %d (callerPort=%d, calleePort=%d)",
-                     (int)relayHandleToClone,
-                     (int)relayHandleOfClone,
-                     doSwapCallerAndCallee,
-                     callerRtpPort,
-                     calleeRtpPort );
-   }
-   return relayHandleOfClone;
-}
-
-bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
-{
-   OsLock lock( mMutex );
-   bool bDeallocSucceeded = false;
-
-   if( handle != INVALID_MEDIA_RELAY_HANDLE )
-   {
-      MediaRelaySession* pMediaRelaySession;
-
-      if( ( pMediaRelaySession = const_cast< MediaRelaySession* >( getSessionByHandle( handle ) ) ) )
-      {
-         bDeallocSucceeded = true;
-         if( pMediaRelaySession->decrementLinkCount() == 0 )
-         {
-            if( !pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() )
-            {
-               // remove the MediaBridgePair associated with the deallocated session
-               // from the mBusyMediaBridgePairsList and return it to the mAvailableMediaBridgePairsList.
-               // NOTE: This class adds and removes elements at the end of lists so start looking for the
-               // MediaBridgePair to remove starting at the end.
-               MediaBridgePair* pMediaBridgePairBeingFreed = pMediaRelaySession->getAssociatedMediaBridgePair();
-               std::vector<MediaBridgePair*>::iterator pos;
-               bool itemToEraseFound = false;
-               for( pos = mBusyMediaBridgePairsList.begin(); pos != mBusyMediaBridgePairsList.end(); ++pos )
-               {
-                  if( *pos == pMediaBridgePairBeingFreed )
-                  {
-                     mBusyMediaBridgePairsList.erase( pos );
-                     itemToEraseFound = true;
-                     break;
-                  }
-               }
-
-               Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
-                              "MBP:%p (RtpBridge=%s)",
-                              (int)handle,
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getPort(),
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getId().data(),
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getPort(),
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getId().data(),
-                              pMediaBridgePairBeingFreed,
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getId().data() );
-
-               if( !itemToEraseFound )
-               {
-                  Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "MediaRelay::deallocateSession couldn't find pMediaBridgePair being freed in mBusyMediaBridgePairsList.");
-               }
-               mAvailableMediaBridgePairsList.push_back( pMediaBridgePairBeingFreed );
-
-               // return the bridges in a paused state.
-               UtlString rtpBridgeId  = pMediaBridgePairBeingFreed->getRtpBridge()->getId();
-               UtlString rtcpBridgeId = pMediaBridgePairBeingFreed->getRtcpBridge()->getId();
-               //mAsynchMediaRelayRequestSender.pauseBridge( mOurInstanceHandle, rtpBridgeId );
-               //mAsynchMediaRelayRequestSender.pauseBridge( mOurInstanceHandle, rtcpBridgeId );
-
-               // remove media relay session just deallocated from our active list.
-               mActiveMediaRelaySessions.destroy( &handle );
-            }
-            else
-            {
-               // we are deallocating a clone.   Remove it from our active list but
-               // do not actiually de-allocate anything on the Symmitron as the
-               // original copy may still be around.
-               mActiveMediaRelaySessions.destroy( &handle );
-            }
-         }
-         else
-         {
-            Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session but non-zero link count (%zd)",
-                           (int)handle,
-                           pMediaRelaySession->getLinkCount() );
-         }
-         assert( mAvailableMediaBridgePairsList.size() + mBusyMediaBridgePairsList.size() == mMaxMediaRelaySessions );
-      }
-   }
-   return bDeallocSucceeded;
-}
-
-bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirectionality mediaRelayDirectionMode )
-{
-   OsLock lock( mMutex );
-   bool success = false;
-
-   if( handle != INVALID_MEDIA_RELAY_HANDLE )
-   {
-      const MediaRelaySession* pMediaRelaySession;
-      if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
-      {
-         // figure out which syms to pause to achieve prescribed directionality.
-         // The directionality setting is referenced from the point of view of
-         // the caller.  The Bridge abstraction contains two syms (1 and 2)
-         // but does not know the concept of caller or callee.  As a convention,
-         // the Media Relay uses sym1 for the caller and sym2 for the callee.
-
-         UtlString rtpSymId;
-         MediaBridgePair* pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair();
-
-         success = true;
-         if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() &&
-             pMediaRelaySession->areCallerAndCalleeRtpPortsSwapped() )
-         {
-            if( mediaRelayDirectionMode == SEND_ONLY )
-            {
-               mediaRelayDirectionMode = RECV_ONLY;
-            }
-            else if( mediaRelayDirectionMode == RECV_ONLY )
-            {
-               mediaRelayDirectionMode = SEND_ONLY;
-            }
-         }
-
-         if( mediaRelayDirectionMode == RECV_ONLY )
-         {
-            // RECV_ONLY means that the caller receives but does not send therefore
-            // the Sym1 from the RTP bridge need to be paused while the
-            // RTCP one needs to remain open to ensure that bi-directional exchnage
-            // of RTCP metrics continue to happen.
-            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
-//            mAsynchMediaRelayRequestSender.pauseSym( mOurInstanceHandle, rtpSymId );
-            // the other Sym needs to be resumed in case it was paused
-            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
-//            mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
-         }
-         else if( mediaRelayDirectionMode == SEND_ONLY )
-         {
-            // SEND_ONLY means that the caller sends but does not receive therefore
-            // the Sym2 from the RTP bridge needs to be paused while the
-            // RTCP one needs to remain open to ensure that bi-directional exchnage
-            // of RTCP metrics continue to happen.
-            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
-//            mAsynchMediaRelayRequestSender.pauseSym( mOurInstanceHandle, rtpSymId );
-            // the other Sym needs to be resumed in case it was paused
-            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
-//            mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
-         }
-         else // SEND_RECV
-         {
-            // resume syms from both caller and callee in case they were paused.
-            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
-//            mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
-            rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
- //           mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, rtpSymId );
-         }
-         UtlString directionalityString;
-         MediaDescriptor::mediaDirectionalityValueToSdpDirectionalityAttribute( mediaRelayDirectionMode, directionalityString );
-         Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: set directionality to %s.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
-                        "MBP:%p (RtpBridge=%s)",
-                        (int)handle,
-                        directionalityString.data(),
-                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort(),
-                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId().data(),
-                        pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getPort(),
-                        pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId().data(),
-                        pMediaBridgePair,
-                        pMediaBridgePair->getRtpBridge()->getId().data() );
-      }
-   }
-   return success;
-}
-
-bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
-                                    const UtlString& endpointIpAddress,
-                                    int endpointRtpPort,
-                                    int endpointRtcpPort,
-                                    EndpointRole ownerOfSymToLink )
-{
-   OsLock lock( mMutex );
-   bool bLinkSucceeded = false;
-
-   UtlString rtpSymId;
-   UtlString rtcpSymId;
-   const MediaRelaySession* pMediaRelaySession;
-
-   if( ( pMediaRelaySession = getSessionByHandle( relayHandle ) ) )
-   {
-      if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() &&
-          pMediaRelaySession->areCallerAndCalleeRtpPortsSwapped() )
-      {
-         if( ownerOfSymToLink == CALLER )
-         {
-            ownerOfSymToLink = CALLEE;
-         }
-         else
-         {
-            ownerOfSymToLink = CALLER;
-         }
-      }
-
-      MediaBridgePair* pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair();
-
-      UtlString rtpSymId;
-      UtlString rtcpSymId;
-      int rtpPort;
-      // by convention Sym1 is associated to caller and sym2 to callee
-      if( ownerOfSymToLink == CALLER )
-      {
-         rtpSymId  = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
-         rtpPort   = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort();
-         rtcpSymId = pMediaBridgePair->getRtcpBridge()->getEndpoint1Sym()->getId();
-      }
-      else
-      {
-         rtpSymId  = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
-         rtpPort   = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getPort();
-         rtcpSymId = pMediaBridgePair->getRtcpBridge()->getEndpoint2Sym()->getId();
-      }
-
-//      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtpSymId,  endpointIpAddress, endpointRtpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );
-//      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtcpSymId, endpointIpAddress, endpointRtcpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );
-      bLinkSucceeded = true;
-
-      Os::Logger::instance().log( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: linking %u to dest %s:%u (symId=%s)",
-                     (int)relayHandle,
-                     rtpPort,
-                     endpointIpAddress.data(),
-                     endpointRtpPort,
-                     rtpSymId.data() );
-   }
-   else
-   {
-      Os::Logger::instance().log(FAC_NAT, PRI_CRIT,
-                    "MediaRelay::linkSymToEndpoint failed to getSessionByHandle: %d",
-                    (int)relayHandle );
-
-   }
-   return bLinkSucceeded;
-}
-
-ssize_t MediaRelay::incrementLinkCountOfMediaRelaySession( const tMediaRelayHandle& handle )
-{
-   OsLock lock( mMutex );
-   ssize_t result = 0;
-   MediaRelaySession* pMediaRelaySession = 0;
-
-   if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
-   {
-      result = pMediaRelaySession->incrementLinkCount();
-   }
-   return result;
-}
-
-int MediaRelay::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole )
-{
-   OsLock lock( mMutex );
-   int rtpPort = PORT_NONE;
-   MediaRelaySession* pMediaRelaySession = 0;
-
-   if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
-   {
-      rtpPort = pMediaRelaySession->getRtpRelayPort( endpointRole );
-   }
-   return rtpPort;
-}
-
-MediaRelaySession* MediaRelay::getSessionByHandle( const tMediaRelayHandle& handle )
-{
-   OsLock lock( mMutex );
-   return (MediaRelaySession*) mActiveMediaRelaySessions.findValue( &handle );
-}
+//   return NULL;
+//}
 
 //UtlHashMap* MediaRelay::executeAndValudateSymmitronRequest( XmlRpcRequest& requestToSend, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription, XmlRpcResponse& xmlRpcResponse, bool bRetryFailedConnection )
 //{
@@ -1074,19 +1076,19 @@ MediaRelaySession* MediaRelay::getSessionByHandle( const tMediaRelayHandle& hand
 //   mBusyMediaBridgePairsList.clear();
 //}
 
-bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
-                                                               PacketProcessingStatistics& stats )
-{
-   OsLock lock( mMutex );
-   bool result = false;
-   MediaRelaySession* pMediaRelaySession = getSessionByHandle( handle );
-   if( pMediaRelaySession )
-   {
-      stats = pMediaRelaySession->getPacketProcessingStats();
-      result = true;
-   }
-   return result;
-}
+//bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
+//                                                               PacketProcessingStatistics& stats )
+//{
+//   OsLock lock( mMutex );
+//   bool result = false;
+//   MediaRelaySession* pMediaRelaySession = getSessionByHandle( handle );
+//   if( pMediaRelaySession )
+//   {
+//      stats = pMediaRelaySession->getPacketProcessingStats();
+//      result = true;
+//   }
+//   return result;
+//}
 
 //OsStatus MediaRelay::signal( intptr_t eventData )
 //{
@@ -1142,141 +1144,141 @@ bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelay
 //   return OS_SUCCESS;
 //}
 
-Sym::Sym( UtlString& id, UtlString& localAddress, int port ) :
-   mId( id ),
-   mLocalAddress( localAddress ),
-   mPort( port )
-{
-}
-
-UtlString Sym::getId( void ) const
-{
-   return mId;
-}
-
-UtlString Sym::getLocalAddress( void ) const
-{
-   return mLocalAddress;
-}
-
-int Sym::getPort( void ) const
-{
-   return mPort;
-}
-UtlContainableType Sym::getContainableType() const
-{
-   return Sym::TYPE;
-}
-
-unsigned Sym::hash() const
-{
-   return directHash();
-}
-
-// evaluation is performed so that syms will be ordered by local IP, then
-// by port number then by Id.
-int Sym::compareTo(UtlContainable const *rhs ) const
-{
-   Sym *rhsSym = (Sym*)rhs;
-   int rc;
-   if( ( rc = mLocalAddress.compareTo( rhsSym->getLocalAddress() ) ) == 0 )
-   {
-      if( mPort != rhsSym->getPort() )
-      {
-         rc = ( mPort < rhsSym->getPort() ? -1 : 1 );
-      }
-      else
-      {
-         rc = mId.compareTo( rhsSym->getId() );
-      }
-
-   }
-   return rc;
-}
-
-Bridge::Bridge( UtlString& id, Sym* pEndpoint1Sym, Sym* pEndpoint2Sym ) :
-   mId( id ),
-   mpEndpoint1Sym( pEndpoint1Sym ),
-   mpEndpoint2Sym( pEndpoint2Sym )
-{
-}
-
-UtlString Bridge::getId( void ) const
-{
-   return mId;
-}
-
-const Sym* Bridge::getEndpoint1Sym( void ) const
-{
-  return mpEndpoint1Sym;
-}
-
-const Sym* Bridge::getEndpoint2Sym( void ) const
-{
-   return mpEndpoint2Sym;
-}
-
-UtlContainableType Bridge::getContainableType() const
-{
-   return Bridge::TYPE;
-}
-
-unsigned Bridge::hash() const
-{
-   return directHash();
-}
-
-int Bridge::compareTo(UtlContainable const *rhs ) const
-{
-   return mId.compareTo( ((Bridge*)rhs)->mId );
-}
-
-MediaBridgePair::MediaBridgePair( Bridge* pRtpBridge, Bridge* pRtcpBridge ) :
-   mpRtpBridge(  pRtpBridge ),
-   mpRtcpBridge( pRtcpBridge )
-{
-}
-
-const Bridge* MediaBridgePair::getRtpBridge( void ) const
-{
-   return mpRtpBridge;
-}
-
-const Bridge* MediaBridgePair::getRtcpBridge( void ) const
-{
-   return mpRtcpBridge;
-}
-
-UtlContainableType MediaBridgePair::getContainableType() const
-{
-   return MediaBridgePair::TYPE;
-}
-
-unsigned MediaBridgePair::hash() const
-{
-   return directHash();
-}
-
-int MediaBridgePair::compareTo(UtlContainable const *rhs ) const
-{
-   int result;
-   if( getRtpBridge() == static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() )
-   {
-      if( getRtcpBridge() == static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() )
-      {
-         result = 0;
-      }
-      else
-      {
-         result = ( getRtcpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() ? 1 : -1 );
-      }
-   }
-   else
-   {
-      result = ( getRtpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() ? 1 : -1 );
-   }
-   return result;
-}
+//Sym::Sym( UtlString& id, UtlString& localAddress, int port ) :
+//   mId( id ),
+//   mLocalAddress( localAddress ),
+//   mPort( port )
+//{
+//}
+//
+//UtlString Sym::getId( void ) const
+//{
+//   return mId;
+//}
+//
+//UtlString Sym::getLocalAddress( void ) const
+//{
+//   return mLocalAddress;
+//}
+//
+//int Sym::getPort( void ) const
+//{
+//   return mPort;
+//}
+//UtlContainableType Sym::getContainableType() const
+//{
+//   return Sym::TYPE;
+//}
+//
+//unsigned Sym::hash() const
+//{
+//   return directHash();
+//}
+//
+//// evaluation is performed so that syms will be ordered by local IP, then
+//// by port number then by Id.
+//int Sym::compareTo(UtlContainable const *rhs ) const
+//{
+//   Sym *rhsSym = (Sym*)rhs;
+//   int rc;
+//   if( ( rc = mLocalAddress.compareTo( rhsSym->getLocalAddress() ) ) == 0 )
+//   {
+//      if( mPort != rhsSym->getPort() )
+//      {
+//         rc = ( mPort < rhsSym->getPort() ? -1 : 1 );
+//      }
+//      else
+//      {
+//         rc = mId.compareTo( rhsSym->getId() );
+//      }
+//
+//   }
+//   return rc;
+//}
+//
+//Bridge::Bridge( UtlString& id, Sym* pEndpoint1Sym, Sym* pEndpoint2Sym ) :
+//   mId( id ),
+//   mpEndpoint1Sym( pEndpoint1Sym ),
+//   mpEndpoint2Sym( pEndpoint2Sym )
+//{
+//}
+//
+//UtlString Bridge::getId( void ) const
+//{
+//   return mId;
+//}
+//
+//const Sym* Bridge::getEndpoint1Sym( void ) const
+//{
+//  return mpEndpoint1Sym;
+//}
+//
+//const Sym* Bridge::getEndpoint2Sym( void ) const
+//{
+//   return mpEndpoint2Sym;
+//}
+//
+//UtlContainableType Bridge::getContainableType() const
+//{
+//   return Bridge::TYPE;
+//}
+//
+//unsigned Bridge::hash() const
+//{
+//   return directHash();
+//}
+//
+//int Bridge::compareTo(UtlContainable const *rhs ) const
+//{
+//   return mId.compareTo( ((Bridge*)rhs)->mId );
+//}
+//
+//MediaBridgePair::MediaBridgePair( Bridge* pRtpBridge, Bridge* pRtcpBridge ) :
+//   mpRtpBridge(  pRtpBridge ),
+//   mpRtcpBridge( pRtcpBridge )
+//{
+//}
+//
+//const Bridge* MediaBridgePair::getRtpBridge( void ) const
+//{
+//   return mpRtpBridge;
+//}
+//
+//const Bridge* MediaBridgePair::getRtcpBridge( void ) const
+//{
+//   return mpRtcpBridge;
+//}
+//
+//UtlContainableType MediaBridgePair::getContainableType() const
+//{
+//   return MediaBridgePair::TYPE;
+//}
+//
+//unsigned MediaBridgePair::hash() const
+//{
+//   return directHash();
+//}
+//
+//int MediaBridgePair::compareTo(UtlContainable const *rhs ) const
+//{
+//   int result;
+//   if( getRtpBridge() == static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() )
+//   {
+//      if( getRtcpBridge() == static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() )
+//      {
+//         result = 0;
+//      }
+//      else
+//      {
+//         result = ( getRtcpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() ? 1 : -1 );
+//      }
+//   }
+//   else
+//   {
+//      result = ( getRtpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() ? 1 : -1 );
+//   }
+//   return result;
+//}
 
 //AsynchMediaRelayRequestSender::AsynchMediaRelayRequestSender( MediaRelay* pOwningMediaRelay ) :
 //   OsServerTask( "AsynchMediaRelayRequestSender-%d" ),

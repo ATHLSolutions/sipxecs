@@ -122,12 +122,12 @@ public:
    void appendMediaDescriptor( MediaDescriptor* pMediaDescriptor );
 
    // Media Relay Session-related methods
-   bool allocateMediaRelaySession( tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort );
-   tMediaRelayHandle cloneMediaRelaySession( tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee );
-   bool deallocateMediaRelaySession( const tMediaRelayHandle& relayHandle );
-   void deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays = true,
-                                                 bool bDeallocateTentativeNonInitialRelays = true,
-                                                 bool bDeallocateCurrentRelays = true );
+//   bool allocateMediaRelaySession( tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort );
+//   tMediaRelayHandle cloneMediaRelaySession( tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee );
+//   bool deallocateMediaRelaySession( const tMediaRelayHandle& relayHandle );
+//   void deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays = true,
+//                                                 bool bDeallocateTentativeNonInitialRelays = true,
+//                                                 bool bDeallocateCurrentRelays = true );
    bool wasMediaTrafficSeenInLastNSeconds( unsigned long numberOfSeconds );
 
    // Methods for Media Relay handle encoding/decoding in SDP
@@ -172,7 +172,7 @@ public:
     * after an INVITE succeeds to promote the tentatively allcoated MediaRelaySessions into the obes
     * that actually get used to relay the newly negotiated media session.
     */
-   void promoteTentativeMediaRelaySessionsToCurrent( void );
+   //void promoteTentativeMediaRelaySessionsToCurrent( void );
 
    /**
     * Returns the role (CALLER or CALLEE of the originator the message currently being processed.

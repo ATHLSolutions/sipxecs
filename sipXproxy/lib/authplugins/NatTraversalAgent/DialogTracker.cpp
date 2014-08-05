@@ -120,7 +120,7 @@ DialogTracker::DialogTracker( const UtlString& handle,
 
 DialogTracker::~DialogTracker()
 {
-   deallocateAndClearAllMediaRelaySessions();
+   //deallocateAndClearAllMediaRelaySessions();
    vector<MediaDescriptor*>::iterator pos;
    for( pos = mMediaDescriptors.begin(); pos != mMediaDescriptors.end(); ++pos )
    {
@@ -303,139 +303,139 @@ bool DialogTracker::doesEndpointsLocationImposeMediaRelay( const SipMessage& req
   return pOwningSessionContext->doesEndpointsLocationImposeMediaRelay(request);
 }
 
-bool DialogTracker::allocateMediaRelaySession( tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort )
-{
-   return pOwningSessionContext->allocateMediaRelaySession( mHandle, relayHandle, callerRelayRtpPort, calleeRelayRtpPort );
-}
+//bool DialogTracker::allocateMediaRelaySession( tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort )
+//{
+//   return pOwningSessionContext->allocateMediaRelaySession( mHandle, relayHandle, callerRelayRtpPort, calleeRelayRtpPort );
+//}
+//
+//tMediaRelayHandle DialogTracker::cloneMediaRelaySession( tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
+//{
+//   return pOwningSessionContext->cloneMediaRelaySession( mHandle, relayHandleToClone, doSwapCallerAndCallee );
+//}
+//
+//bool DialogTracker::deallocateMediaRelaySession( const tMediaRelayHandle& relayHandle )
+//{
+//   return pOwningSessionContext->deallocateMediaRelaySession( mHandle, relayHandle );
+//}
 
-tMediaRelayHandle DialogTracker::cloneMediaRelaySession( tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
-{
-   return pOwningSessionContext->cloneMediaRelaySession( mHandle, relayHandleToClone, doSwapCallerAndCallee );
-}
+//void DialogTracker::promoteTentativeMediaRelaySessionsToCurrent( void )
+//{
+//   size_t index;
+//   size_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
+//   for( index = 0; index < numSavedMediaDescriptors; index++ )
+//   {
+//      MediaDescriptor* pMediaDescriptor;
+//      pMediaDescriptor = getModifiableMediaDescriptor( index );
+//      tMediaRelayHandle tempMediaRelayHandle;
+//
+//      // a new MediaRelaySession is going to become the new 'current' one.  De-allocate the MediaRelaySession that
+//      // is currently the 'current' one.
+//      if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//      {
+//         deallocateMediaRelaySession( tempMediaRelayHandle );
+//      }
+//
+//      if( getNonIntialOfferAnswerExchangeDoneFlag() == true )
+//      {
+//         // a non-initial media negotiation took place.  Use non-initial tentative MediaRelaySession
+//         // as the new 'current' and deallocate the MediaRelaySession that got allocated during the
+//         // processing of the initial media negotiation.
+//         if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//         {
+//            deallocateMediaRelaySession( tempMediaRelayHandle );
+//            pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
+//         }
+//         pMediaDescriptor->setCurrentMediaRelayHandle( pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() );
+//         pMediaDescriptor->clearTentativeNonInitialMediaRelayHandle();
+//      }
+//      else
+//      {
+//         // No non-initial media negotiation took place.  Use initial tentative MediaRelaySession
+//         // as the new 'current'.
+//         pMediaDescriptor->setCurrentMediaRelayHandle( pMediaDescriptor->getTentativeInitialMediaRelayHandle() );
+//         pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
+//      }
+//   }
+//}
 
-bool DialogTracker::deallocateMediaRelaySession( const tMediaRelayHandle& relayHandle )
-{
-   return pOwningSessionContext->deallocateMediaRelaySession( mHandle, relayHandle );
-}
-
-void DialogTracker::promoteTentativeMediaRelaySessionsToCurrent( void )
-{
-   size_t index;
-   size_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
-   for( index = 0; index < numSavedMediaDescriptors; index++ )
-   {
-      MediaDescriptor* pMediaDescriptor;
-      pMediaDescriptor = getModifiableMediaDescriptor( index );
-      tMediaRelayHandle tempMediaRelayHandle;
-
-      // a new MediaRelaySession is going to become the new 'current' one.  De-allocate the MediaRelaySession that
-      // is currently the 'current' one.
-      if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-      {
-         deallocateMediaRelaySession( tempMediaRelayHandle );
-      }
-
-      if( getNonIntialOfferAnswerExchangeDoneFlag() == true )
-      {
-         // a non-initial media negotiation took place.  Use non-initial tentative MediaRelaySession
-         // as the new 'current' and deallocate the MediaRelaySession that got allocated during the
-         // processing of the initial media negotiation.
-         if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-         {
-            deallocateMediaRelaySession( tempMediaRelayHandle );
-            pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
-         }
-         pMediaDescriptor->setCurrentMediaRelayHandle( pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() );
-         pMediaDescriptor->clearTentativeNonInitialMediaRelayHandle();
-      }
-      else
-      {
-         // No non-initial media negotiation took place.  Use initial tentative MediaRelaySession
-         // as the new 'current'.
-         pMediaDescriptor->setCurrentMediaRelayHandle( pMediaDescriptor->getTentativeInitialMediaRelayHandle() );
-         pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
-      }
-   }
-}
-
-void DialogTracker::deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays,
-                                                             bool bDeallocateTentativeNonInitialRelays,
-                                                             bool bDeallocateCurrentRelays )
-{
-   size_t index;
-   size_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
-   for( index = 0; index < numSavedMediaDescriptors; index++ )
-   {
-      MediaDescriptor* pMediaDescriptor;
-      pMediaDescriptor = getModifiableMediaDescriptor( index );
-      tMediaRelayHandle tempMediaRelayHandle;
-
-      if( bDeallocateTentativeInitialRelays &&
-          ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-      {
-         deallocateMediaRelaySession( tempMediaRelayHandle );
-         pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
-      }
-
-      if( bDeallocateTentativeNonInitialRelays && ( tempMediaRelayHandle = pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-      {
-         deallocateMediaRelaySession( tempMediaRelayHandle );
-         pMediaDescriptor->clearTentativeNonInitialMediaRelayHandle();
-      }
-
-      if( bDeallocateCurrentRelays && ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-      {
-         deallocateMediaRelaySession( tempMediaRelayHandle );
-         pMediaDescriptor->clearCurrentMediaRelayHandle();
-      }
-   }
-}
+//void DialogTracker::deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays,
+//                                                             bool bDeallocateTentativeNonInitialRelays,
+//                                                             bool bDeallocateCurrentRelays )
+//{
+//   size_t index;
+//   size_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
+//   for( index = 0; index < numSavedMediaDescriptors; index++ )
+//   {
+//      MediaDescriptor* pMediaDescriptor;
+//      pMediaDescriptor = getModifiableMediaDescriptor( index );
+//      tMediaRelayHandle tempMediaRelayHandle;
+//
+//      if( bDeallocateTentativeInitialRelays &&
+//          ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//      {
+//         deallocateMediaRelaySession( tempMediaRelayHandle );
+//         pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
+//      }
+//
+//      if( bDeallocateTentativeNonInitialRelays && ( tempMediaRelayHandle = pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//      {
+//         deallocateMediaRelaySession( tempMediaRelayHandle );
+//         pMediaDescriptor->clearTentativeNonInitialMediaRelayHandle();
+//      }
+//
+//      if( bDeallocateCurrentRelays && ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//      {
+//         deallocateMediaRelaySession( tempMediaRelayHandle );
+//         pMediaDescriptor->clearCurrentMediaRelayHandle();
+//      }
+//   }
+//}
 
 bool DialogTracker::wasMediaTrafficSeenInLastNSeconds( unsigned long numberOfSeconds )
 {
    bool bTrafficSeen = false;
-   unsigned long currentEpochTime = OsDateTime::getSecsSinceEpoch();
-   unsigned long lastPacketsProcessedThreshold;
-
-   lastPacketsProcessedThreshold = ( currentEpochTime > numberOfSeconds ?
-                                       currentEpochTime - numberOfSeconds : 0 );
-
-   ssize_t index;
-   ssize_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
+//   unsigned long currentEpochTime = OsDateTime::getSecsSinceEpoch();
+//   unsigned long lastPacketsProcessedThreshold;
+//
+//   lastPacketsProcessedThreshold = ( currentEpochTime > numberOfSeconds ?
+//                                       currentEpochTime - numberOfSeconds : 0 );
+//
+//   ssize_t index;
+//   ssize_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
    ssize_t numOfActiveSession = 0;
-
-   if( numSavedMediaDescriptors > 0 )
-   {
-      PacketProcessingStatistics stats;
-      const MediaDescriptor* pMediaDescriptor;
-      tMediaRelayHandle tempMediaRelayHandle;
-
-      for( index = 0; index < numSavedMediaDescriptors; index++ )
-      {
-         pMediaDescriptor = getReadOnlyMediaDescriptor( index );
-
-         if( pMediaDescriptor->getDirectionality() != INACTIVE )
-         {
-            if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-            {
-               numOfActiveSession++;
-               if( pOwningSessionContext->getPacketProcessingStatsForMediaRelaySession( tempMediaRelayHandle, stats ) )
-               {
-                  if( stats.mEpochTimeOfLastPacketsProcessed &&
-                      stats.mEpochTimeOfLastPacketsProcessed > lastPacketsProcessedThreshold )
-                  {
-
-                     // we found one media relay session that processed packets after our thresholds.
-                     // This indicates that traffic has been seen recently enough to return success
-                     // and stop looking.
-                     bTrafficSeen = true;
-                     break;
-                  }
-               }
-            }
-         }
-      }
-   }
+//
+//   if( numSavedMediaDescriptors > 0 )
+//   {
+//      PacketProcessingStatistics stats;
+//      const MediaDescriptor* pMediaDescriptor;
+//      tMediaRelayHandle tempMediaRelayHandle;
+//
+//      for( index = 0; index < numSavedMediaDescriptors; index++ )
+//      {
+//         pMediaDescriptor = getReadOnlyMediaDescriptor( index );
+//
+//         if( pMediaDescriptor->getDirectionality() != INACTIVE )
+//         {
+//            if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
+//            {
+//               numOfActiveSession++;
+//               if( pOwningSessionContext->getPacketProcessingStatsForMediaRelaySession( tempMediaRelayHandle, stats ) )
+//               {
+//                  if( stats.mEpochTimeOfLastPacketsProcessed &&
+//                      stats.mEpochTimeOfLastPacketsProcessed > lastPacketsProcessedThreshold )
+//                  {
+//
+//                     // we found one media relay session that processed packets after our thresholds.
+//                     // This indicates that traffic has been seen recently enough to return success
+//                     // and stop looking.
+//                     bTrafficSeen = true;
+//                     break;
+//                  }
+//               }
+//            }
+//         }
+//      }
+//   }
 
    if( numOfActiveSession == 0 )
    {
@@ -479,7 +479,7 @@ bool DialogTracker::patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tM
       pSdpBody->modifyMediaAddress( mediaIndex, mediaRelayAddressToUse );
 
       // patch RTP Port
-      pSdpBody->modifyMediaPort( mediaIndex, rtpPort );
+      //pSdpBody->modifyMediaPort( mediaIndex, rtpPort );
 
       // Remove RTCP attribute in case it was there.  Media Relay RTCP port is guaranteed
       // to be RTP+1
@@ -657,9 +657,9 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
             int originalCalleePort = PORT_NONE; // will store RTP port allocated for callee by pre-existing media relay session
 
             if( preExistingMediaRelayHandle != INVALID_MEDIA_RELAY_HANDLE &&
-                preExistingMediaRelayHandle != pMediaDescriptor->getCurrentMediaRelayHandle() &&
-                ( originalCallerPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLER ) ) != PORT_NONE &&
-                ( originalCalleePort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLEE ) ) != PORT_NONE
+                preExistingMediaRelayHandle != pMediaDescriptor->getCurrentMediaRelayHandle() //&&
+//                ( originalCallerPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLER ) ) != PORT_NONE &&
+//                ( originalCalleePort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLEE ) ) != PORT_NONE
               )
             {
                setMediaRelayRequiredFlag(); // a media relay is going to be needed after all, not because of the
@@ -681,16 +681,16 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                if( ourRelayRtpPort == originalCallerPort )
                {
                   bDoSwapCallerAndCallee = ( thisEndpointRole == CALLER ? false : true );
-                  tentativeRelayHandle = cloneMediaRelaySession( preExistingMediaRelayHandle, bDoSwapCallerAndCallee );
+                  //tentativeRelayHandle = cloneMediaRelaySession( preExistingMediaRelayHandle, bDoSwapCallerAndCallee );
                }
                else if( ourRelayRtpPort == originalCalleePort )
                {
                   bDoSwapCallerAndCallee = ( thisEndpointRole == CALLEE ? false : true );
-                  tentativeRelayHandle = cloneMediaRelaySession( preExistingMediaRelayHandle, bDoSwapCallerAndCallee );
+                  //tentativeRelayHandle = cloneMediaRelaySession( preExistingMediaRelayHandle, bDoSwapCallerAndCallee );
                }
                else
                {
-                  tentativeRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle();
+                  //tentativeRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle();
 
                   Os::Logger::instance().log(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  3PCC is not using any of the media relay ports.  Handle=%d; port=%d",
                         name(), (int)preExistingMediaRelayHandle, ourRelayRtpPort );
@@ -703,17 +703,17 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                   int callerRelayRtpPort;
                   int calleeRelayRtpPort;
 
-                  if( allocateMediaRelaySession( tentativeRelayHandle, callerRelayRtpPort, calleeRelayRtpPort ) )
+//                  if( allocateMediaRelaySession( tentativeRelayHandle, callerRelayRtpPort, calleeRelayRtpPort ) )
                   {
                      ourRelayRtpPort = ( thisEndpointRole == CALLER ? callerRelayRtpPort : calleeRelayRtpPort );
                      bDoPatchSdp = true;
                   }
-                  else
-                  {
-                     Os::Logger::instance().log(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to allocateMediaRelaySession while in state '%s'",
-                           name(), GetCurrentState()->name() );
-                     bDoPatchSdp = false;
-                  }
+//                  else
+//                  {
+//                     Os::Logger::instance().log(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to allocateMediaRelaySession while in state '%s'",
+//                           name(), GetCurrentState()->name() );
+//                     bDoPatchSdp = false;
+//                  }
                }
             }
 
@@ -965,42 +965,42 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                         pSdpBody->insertMediaAttribute( index, directionalityToUseInThisSdpString );
                      }
 
-                     int rtpPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( tentativeMediaRelayHandle, endpointRole );
-                     if( rtpPort != PORT_NONE )
-                     {
-                        if( hasSdpAlreadyBeenPatchedByUs( pSdpBody, index ) == false )
-                        {
-                           // In 3PCC call scenarios notably, it is possible for an SDP answer to
-                           // be seen and processed by two different DialogTracker instances.
-                           // We should not attempt to link the far-end media port to the
-                           // media endpoint that sent that answer if we see that the SDP has
-                           // already been patched by us.  The rationale behind that logic
-                           // is that in the case of 3PCC, the actual location of the media
-                           // endpoint to link the far-end media port to is only known with
-                           // accuracy when the SDP is seen the first time as it comes from
-                           // the actual entity that produced it.  So, the net out is that
-                           // we only link the far-end media endpoint to the media endpoint
-                           // associated with the SDP sender when it is seen for the first
-                           // time and is ommited every subsequent time that it is seen.
-                           linkFarEndMediaRelayPortToRequester( tentativeMediaRelayHandle, pMediaDescriptor, endpointRole );
-                        }
-
-                        UtlString mediaRelayAddressToUse;
-                        getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, endpointRole );
-                        patchSdp( pSdpBody, index, rtpPort, tentativeMediaRelayHandle, mediaRelayAddressToUse );
-                     }
-                     else
-                     {
-                        Os::Logger::instance().log(FAC_NAT,PRI_ERR, "DialogTracker[%s]::ProcessMediaAnswer:  Failed to getRtpRelayPortForMediaRelaySession for "
-                                                      "Media Relay Handle %d", name(), (int)tentativeMediaRelayHandle );
-                     }
+//                     int rtpPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( tentativeMediaRelayHandle, endpointRole );
+//                     if( rtpPort != PORT_NONE )
+//                     {
+//                        if( hasSdpAlreadyBeenPatchedByUs( pSdpBody, index ) == false )
+//                        {
+//                           // In 3PCC call scenarios notably, it is possible for an SDP answer to
+//                           // be seen and processed by two different DialogTracker instances.
+//                           // We should not attempt to link the far-end media port to the
+//                           // media endpoint that sent that answer if we see that the SDP has
+//                           // already been patched by us.  The rationale behind that logic
+//                           // is that in the case of 3PCC, the actual location of the media
+//                           // endpoint to link the far-end media port to is only known with
+//                           // accuracy when the SDP is seen the first time as it comes from
+//                           // the actual entity that produced it.  So, the net out is that
+//                           // we only link the far-end media endpoint to the media endpoint
+//                           // associated with the SDP sender when it is seen for the first
+//                           // time and is ommited every subsequent time that it is seen.
+//                           linkFarEndMediaRelayPortToRequester( tentativeMediaRelayHandle, pMediaDescriptor, endpointRole );
+//                        }
+//
+//                        UtlString mediaRelayAddressToUse;
+//                        getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, endpointRole );
+//                        patchSdp( pSdpBody, index, rtpPort, tentativeMediaRelayHandle, mediaRelayAddressToUse );
+//                     }
+//                     else
+//                     {
+//                        Os::Logger::instance().log(FAC_NAT,PRI_ERR, "DialogTracker[%s]::ProcessMediaAnswer:  Failed to getRtpRelayPortForMediaRelaySession for "
+//                                                      "Media Relay Handle %d", name(), (int)tentativeMediaRelayHandle );
+//                     }
                   }
                }
                else
                {
                   // the answerer has refused the media session - de-allocate the media relay session
                   // we had tentatively allocated to relay its media.
-                  deallocateMediaRelaySession( tentativeMediaRelayHandle );
+                  //deallocateMediaRelaySession( tentativeMediaRelayHandle );
                   if( offerAnswerPattern == INITIAL_OFFER_ANSWER )
                   {
                      pMediaDescriptor->clearTentativeInitialMediaRelayHandle();

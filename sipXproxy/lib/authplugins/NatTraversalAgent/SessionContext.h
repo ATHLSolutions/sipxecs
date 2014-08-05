@@ -53,10 +53,10 @@ public:
     *                                   to send its media to.
     * \return - true media relay session was properly allocated.
     */
-   virtual bool allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                                           tMediaRelayHandle& relayHandle,
-                                           int& callerRelayRtpPort,
-                                           int& calleeRelayRtpPort ) = 0;
+//   virtual bool allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                                           tMediaRelayHandle& relayHandle,
+//                                           int& callerRelayRtpPort,
+//                                           int& calleeRelayRtpPort ) = 0;
 
    /**
     * Requests the cloning of an existing media relay session.  This cloning technique is
@@ -68,9 +68,9 @@ public:
     *                                     and callee need to be inverted in the cloned session.
     * \return - handle of the clone media relay session
     */
-   virtual tMediaRelayHandle cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                                                     tMediaRelayHandle& relayHandleToClone,
-                                                     bool doSwapCallerAndCallee ) = 0;
+//   virtual tMediaRelayHandle cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                                                     tMediaRelayHandle& relayHandleToClone,
+//                                                     bool doSwapCallerAndCallee ) = 0;
 
    /**
     * Requests the de-allocation of a previously allocated media relay session.
@@ -78,8 +78,8 @@ public:
     * \param [in] relayHandle - handle of media relay session to de-allocate
     * \return - true media relay session was properly de-allocated.
     */
-   virtual bool deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                                             const tMediaRelayHandle& relayHandle ) = 0;
+//   virtual bool deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                                             const tMediaRelayHandle& relayHandle ) = 0;
 
    /**
     * Used to query the RTP port that a given MediaRelaySession has allocated
@@ -88,8 +88,8 @@ public:
     * ]param [in] endpointRole - role of endpoint for which to retrieve RTP port
     * \return - PORT_NONE if failed, otherwise RTP port number
     */
-   virtual int getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle,
-                                                    EndpointRole endpointRole ) = 0;
+//   virtual int getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle,
+//                                                    EndpointRole endpointRole ) = 0;
 
    /**
     * Used to notify the owning SessionContext that the dialog a DialogTracker
@@ -143,8 +143,8 @@ public:
     * \param [out] stats - structure that will receive the requested stats information
     * \return true operation succeeds, false otherwise
     */
-   virtual bool getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
-                                                              PacketProcessingStatistics& stats ) = 0;
+//   virtual bool getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
+//                                                              PacketProcessingStatistics& stats ) = 0;
 
    virtual ~SessionContextInterfaceForDialogTracker(){};
 };
@@ -192,15 +192,15 @@ public:
    // for method comments.                        //
    // /////////////////////////////////////////// //
    virtual bool doesEndpointsLocationImposeMediaRelay( const SipMessage& request ) const;
-   virtual bool allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                                           tMediaRelayHandle& relayHandle,
-                                           int& callerRelayRtpPort,
-                                           int& calleeRelayRtpPort );
-   virtual tMediaRelayHandle cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                                                     tMediaRelayHandle& relayHandleToClone,
-                                                     bool doSwapCallerAndCallee );
-   virtual bool deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
-                                             const tMediaRelayHandle& relayHandle );
+//   virtual bool allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                                           tMediaRelayHandle& relayHandle,
+//                                           int& callerRelayRtpPort,
+//                                           int& calleeRelayRtpPort );
+//   virtual tMediaRelayHandle cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                                                     tMediaRelayHandle& relayHandleToClone,
+//                                                     bool doSwapCallerAndCallee );
+//   virtual bool deallocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
+//                                             const tMediaRelayHandle& relayHandle );
    virtual bool setMediaRelayDirectionMode( const UtlString& handleOfRequestingDialogContext,
                                             const tMediaRelayHandle& relayHandle,
                                             MediaDirectionality mediaRelayDirectionMode,
@@ -210,10 +210,10 @@ public:
                                                      const MediaDescriptor* pMediaDescriptor,
                                                      EndpointRole endpointRoleOfRequester );
    virtual bool getMediaRelayAddressToUseInSdp( UtlString& mediaRelayAddressToUse, EndpointRole endpointRole ) const;
-   virtual int getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole );
+   //virtual int getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole );
    virtual void reportDialogTrackerReadyForDeletion( const UtlString& handleOfRequestingDialogContext );
-   virtual bool getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
-                                                              PacketProcessingStatistics& stats );
+//   virtual bool getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
+//                                                              PacketProcessingStatistics& stats );
 
    // //// //
    // Misc //
