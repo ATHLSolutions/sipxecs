@@ -118,28 +118,12 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          mpMediaRelay = new MediaRelay();
       }
 
-      size_t attemptCounter;
-      for( attemptCounter = 0; attemptCounter < MAX_MEDIA_RELAY_INIT_ATTEMPTS; attemptCounter++ )
+      Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
+      if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
+                                    mNatTraversalRules.getMediaRelayNativeAddress(),
+                                    mNatTraversalRules.isPartOfLocalTopology( mNatTraversalRules.getMediaRelayNativeAddress() ),
+                                    mNatTraversalRules.getMaxMediaRelaySessions() ) == false )
       {
-         Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
-         if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
-                                       mNatTraversalRules.getMediaRelayNativeAddress(),
-                                       mNatTraversalRules.isXmlRpcSecured(),
-                                       mNatTraversalRules.isPartOfLocalTopology( mNatTraversalRules.getMediaRelayNativeAddress() ),
-                                       mNatTraversalRules.getMediaRelayXmlRpcPort(),
-                                       mNatTraversalRules.getMaxMediaRelaySessions() ) == true )
-         {
-            break;
-         }
-         else
-         {
-            sleep( 5 );
-         }
-      }
-
-      if( attemptCounter >= MAX_MEDIA_RELAY_INIT_ATTEMPTS )
-      {
-         mbNatTraversalFeatureEnabled = true;
          Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_FAILED_TO_INITIALIZE_MEDIA_RELAY %s failed, NAT traversal feature will be disabled",
                        mInstanceName.data() );
       }
@@ -1053,11 +1037,5 @@ NatTraversalAgent::~NatTraversalAgent()
    if (mpSubscribeDb != NULL) {
        delete mpSubscribeDb;
        mpSubscribeDb = NULL;
-   }
-
-   if (mpMediaRelay != NULL)
-   {
-       delete mpMediaRelay;
-       mpMediaRelay = NULL;
    }
 }
